@@ -26,7 +26,7 @@ var searchLong;
 var locationPlaceID = [];
 
 
-// Firebase authentication using Google Sign In
+// Firebase authentication using Google account Sign In
 var config = {
     // apiKey: "AIzaSyB14umVfdO698P_sUXR4J5Xkp755M0LqCA",
     // authDomain: "project1-firebase-auth.firebaseapp.com",
