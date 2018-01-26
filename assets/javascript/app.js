@@ -1,14 +1,20 @@
 
-//jQuery is required to run this code
-
 
 // Array to hold city name and corresponding latitude and logitude
 var locations = [
     ['Dubai', 25.0657005, 55.1712799],
-    ['Lauterbrunnen', 46.5956802, 7.90765],
+    // ['Interlaken', 46.5956802, 7.90765],
+    // ['Lauterbrunnen', 46.9480896, 7.4474401],
+    // ['Kathmandu', 27.7016907, 85.3206024],
+    // ['Cape Town', -33.9258385, 18.4232197],
+    ['Foz do Iguaçu', -25.5477791, -54.5880585],
     ['Empuriabrava', 42.2469101, 3.12059],
     ['Key West', 24.5552406, -81.7816315],
-    ['Queenstown', -45.0302315, 168.6627045]
+    ['Waialua', 21.5768795, -158.131546]
+    // ['Fox Glacier', -43.46448, 170.017588] // 2 locations
+    // ['Queensland', -20.7252293, 139.4972687]
+    // ['Livingstone', -17.8419399, 25.85425] // Only one location and no location details
+    // ['Queenstown', -45.0302315, 168.6627045] // Many locations
 ];
 
 // Variable to store latitude of city for weatherInfo function
@@ -16,9 +22,69 @@ var searchLat;
 // Variable to store longitude of city search for weatherInfo function
 var searchLong;
 
-var placeKey;
+// To store location place_id for Google Places API Web Services search
+var locationPlaceID = [];
 
-var locationPlaceID;
+
+// Firebase authentication using Google Sign In
+var config = {
+    apiKey: "AIzaSyB14umVfdO698P_sUXR4J5Xkp755M0LqCA",
+    authDomain: "project1-firebase-auth.firebaseapp.com",
+    databaseURL: "https://project1-firebase-auth.firebaseio.com",
+    projectId: "project1-firebase-auth",
+    storageBucket: "project1-firebase-auth.appspot.com",
+    messagingSenderId: "558796916951"
+};
+
+firebase.initializeApp(config);
+
+// Google Authentication
+var provider = new firebase.auth.GoogleAuthProvider();
+
+$(document).on("click", ".signInBtn", function () {
+    console.log("Sign In button clicked");
+    firebase.auth().signInWithPopup(provider).then(function (result) {
+        // This gives you a Google Access Token. You can use it to access the Google API.
+        var token = result.credential.accessToken;
+        console.log(token);
+        // The signed-in user info.
+        var user = result.user;
+        console.log(user);
+        // $(".trainSchedule").show();
+        // $(".addTrain").show();
+        window.location = '/map.html';
+
+        // ...
+    }).catch(function (error) {
+        // Handle Errors here.
+        var errorCode = error.code;
+        var errorMessage = error.message;
+        console.log(errorMessage);
+        // The email of the user's account used.
+        var email = error.email;
+        // The firebase.auth.AuthCredential type that was used.
+        var credential = error.credential;
+        // ...
+    });
+    $(this).removeClass('signIn')
+        .addClass('signOut')
+        .html('Sign Out Of Google');
+});
+
+$(document).on('click', '.signOut', function () {
+    firebase.auth().signOut().then(function () {
+        // Sign-out successful.
+        // $(".trainSchedule").hide();
+        // $(".addTrain").hide();
+        window.location = '/index.html';
+    }).catch(function (error) {
+        // An error happened.
+    });
+    $(this).removeClass('signOut')
+        .addClass('signIn')
+        .html('Sign In with Google');
+});
+
 
 // Function that initializes and adds the map when the web page loads
 function initMap() {
@@ -70,7 +136,8 @@ function initMap() {
                 map.setZoom(9);
                 map.panTo(marker.position);
 
-                if (cityName == "Queenstown") {
+                // Assiging the latitude and longitude to variables when user click on the city
+                if (cityName == "Waialua") {
                     searchLocation = new google.maps.LatLng(locations[4][1], locations[4][2]);
                     searchLat = locations[4][1];
                     searchLong = locations[4][2];
@@ -82,7 +149,7 @@ function initMap() {
                     searchLocation = new google.maps.LatLng(locations[2][1], locations[2][2]);
                     searchLat = locations[2][1];
                     searchLong = locations[2][2];
-                } else if (cityName == "Lauterbrunnen") {
+                } else if (cityName == "Foz do Iguaçu") {
                     searchLocation = new google.maps.LatLng(locations[1][1], locations[1][2]);
                     searchLat = locations[1][1];
                     searchLong = locations[1][2];
@@ -93,37 +160,20 @@ function initMap() {
                 }
 
                 //Parameters for our places request
-                console.log("search location is " + searchLocation);
                 var request = {
                     location: searchLocation,
-                    radius: 50000,
-                    keyword: ['skydiving centers']
+                    radius: 25000,
+                    keyword: ['skydiving center']
                 };
                 //Make the service call to google
                 var callPlaces = new google.maps.places.PlacesService(map);
-                // var icon = 'assets/images/skydiving.png'
                 var iconImage = {
                     url: 'assets/images/skydiving.png', // image is 200 x 200
                     scaledSize: new google.maps.Size(32, 32),
                 };
                 callPlaces.search(request, function (results, status) {
-                    // callPlaces.getDetails(request, function (results, status) {
-                    //trace what Google gives us back
-                    console.log(results);
 
-                    locationPlaceID = results[i].place_id;
-                    console.log("Location place id is: " + locationPlaceID);
-
-                    skydivingLocationDetails();
-
-                    // for (var i = 0; i < results.length; i++) {
-                    //     $(".locationDetails").html("<strong>Skydiving Location Details: </strong>");
-                    //     $(".locationName").text("Name: " + results[i].name);
-                    //     $(".locationCo").text("Location Coordinates: " + results[i].geometry.location);
-                    //     $(".locationRating").text("Google Rating: " + results[i].rating);
-                    //     // $(".locationPhoto").text("Photos: " + results[i].photos[]);
-                    //     // $(".locationHours").text("Opening Hours: " + results[i].rating);
-                    // }
+                    locationPlaceID = results[0].place_id;
 
                     $.each(results, function (i, place) {
                         var placeLoc = place.geometry.location;
@@ -134,17 +184,19 @@ function initMap() {
                             title: place.name
                         });
                     })
+                    // Call skydivingLocationDetails function to get skydiving location details
+                    skydivingLocationDetails();
                 });
                 // Call wetherInfo function to get weather details of city when user click on city icon
                 weatherInfo();
-
             }));
 
         })(i);
     }
 }
 
-// Function to get weather info from city
+
+// Function to get current weather info of each city
 function weatherInfo() {
 
     /// API key for weather
@@ -173,58 +225,75 @@ function weatherInfo() {
         $(".max").text("Maximum Temperature(F): " + response.main.temp_max + "\xB0");
         $(".min").text("Minimum Temperature(F): " + response.main.temp_min + "\xB0");
 
-        // Log the data in the console as well
-        // console.log("Wind Speed: " + response.wind.speed);
-        // console.log("Humidity: " + response.main.humidity);
-        // console.log("Current Temperature (F): " + response.main.temp);
-        // console.log("Weather Descritption: " + response.weather[0].description);
-        // console.log("Max: " + response.main.temp_max + "\xB0");
-        // console.log("Min: " + response.main.temp_min + "\xB0");
     });
 }
+
 
 // Function to get weather info from city
 function skydivingLocationDetails() {
 
-    /// API key for Google API Web Services
+    /// API key for Google Places API Web Service
     var googleWebServiceAPIKey = "AIzaSyCopXFH0eqDJPzFsLPyq27LHvsVcWwQk9s";
-    // Here we are building the URL we need to query the database
-    // var queryURL = "https://api.openweathermap.org/data/2.5/weather?lat=" + searchLat + "&lon=" + searchLong + "&units=imperial&appid=" + APIKey;
+    // Query URL
     var locationQueryURL = "https://maps.googleapis.com/maps/api/place/details/json?placeid=" + locationPlaceID + "&key=" + googleWebServiceAPIKey;
     console.log("Query url is: " + locationQueryURL);
     // Here we run our AJAX call to the OpenWeatherMap API and store all of the retrieved data inside of an object called "response"
+
+    // Code to fix CORS issue
+    jQuery.ajaxPrefilter(function (options) {
+        if (options.crossDomain && jQuery.support.cors) {
+            options.url = 'https://cors-anywhere.herokuapp.com/' + options.url;
+        }
+    });
+
+    // ajax call
     $.ajax({
-        // type: "POST",
-        // dataType: 'jsonp',
         url: locationQueryURL,
         method: "GET"
     }).done(function (locationResponse) {
 
-        // Log the queryURL
-        console.log(locationQueryURL);
+        var searchResults = locationResponse.result;
+        // console.log(searchResults);
 
-        // Log the resulting object
-        console.log("location query response: " + locationResponse);
+        // Transfer content to web page
+        $(".locationDetails").html("<strong>Skydiving Location Details: </strong>");
+        $(".locationName").text("Name: " + searchResults.name);
+        $(".locationAddress").text("Address: " + searchResults.formatted_address);
+        $(".locationPhone").text("International Phone Number: " + searchResults.international_phone_number);
+        $(".locationWebsite").text("Website: ")
+        $(".locationWebsite").append("<a href='" + searchResults.website + "' target='_blank'>" + searchResults.website + "</a>");
+        $(".locationRating").text("Rating: " + searchResults.rating);
 
-        // Transfer content to HTML
-        for (var i = 0; i < locationResponse.length; i++) {
-            $(".locationDetails").html("<strong>Skydiving Location Details: </strong>");
-            $(".locationName").text("Name: " + locationResponse[i].name);
-            $(".locationCo").text("Location Coordinates: " + locationResponse[i].geometry.location);
-            $(".locationRating").text("Google Rating: " + locationResponse[i].rating);
-            // $(".locationPhoto").text("Photos: " + results[i].photos[]);
-            // $(".locationHours").text("Opening Hours: " + results[i].rating);
+        // Location Operating Hours
+        var locationOpHours = searchResults.opening_hours;
+        if (locationOpHours != undefined) {
+            var locationHours = searchResults.opening_hours.weekday_text;
+            for (var i = 0; i < locationHours.length; i++) {
+                var hourDiv = $("<div>");
+                var testHour = $("<p>");
+                testHour = locationHours[i];
+                hourDiv.append(testHour);
+                hourDiv.append($("<br>"));
+                $(".locationHours").append(testHour);
+                $(".locationHours").append($("<br>"));
+            }
         }
 
-        // Log the data in the console as well
-        // console.log("Wind Speed: " + response.wind.speed);
-        // console.log("Humidity: " + response.main.humidity);
-        // console.log("Current Temperature (F): " + response.main.temp);
-        // console.log("Weather Descritption: " + response.weather[0].description);
-        // console.log("Max: " + response.main.temp_max + "\xB0");
-        // console.log("Min: " + response.main.temp_min + "\xB0");
+        // Location Photos
+        var pictures = searchResults.photos;
+        for (var i = 0; i < pictures.length; i++) {
+            var imageDiv = $("<div class='image-div'>");
+            var testImage = $("<img>");
+            var imgRef = pictures[i].photo_reference;
+            var photoURL = "https://maps.googleapis.com/maps/api/place/photo?photoreference=" + imgRef + "&sensor=false&maxheight=500&maxwidth=500&key=" + googleWebServiceAPIKey;
+            testImage.attr("src", photoURL);
+            imageDiv.append(testImage);
+            $(".locationPhotos").append(imageDiv);
+        }
+
     });
 }
+
 
 $(document)
     .ready(function () {
