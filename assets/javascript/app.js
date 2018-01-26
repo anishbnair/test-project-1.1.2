@@ -52,7 +52,7 @@ $(document).on("click", ".signInBtn", function () {
         console.log(user);
         // $(".trainSchedule").show();
         // $(".addTrain").show();
-        window.location = '/map.html';
+        window.location = '/test-project-1.2/map.html';
 
         // ...
     }).catch(function (error) {
@@ -71,7 +71,7 @@ $(document).on("click", ".signInBtn", function () {
         .html('Sign Out Of Google');
 });
 
-$(document).on('click', '.signOut', function () {
+$(document).on('click', '.signInBtn', function () {
     firebase.auth().signOut().then(function () {
         // Sign-out successful.
         // $(".trainSchedule").hide();
