@@ -28,12 +28,20 @@ var locationPlaceID = [];
 
 // Firebase authentication using Google Sign In
 var config = {
-    apiKey: "AIzaSyB14umVfdO698P_sUXR4J5Xkp755M0LqCA",
-    authDomain: "project1-firebase-auth.firebaseapp.com",
-    databaseURL: "https://project1-firebase-auth.firebaseio.com",
-    projectId: "project1-firebase-auth",
-    storageBucket: "project1-firebase-auth.appspot.com",
-    messagingSenderId: "558796916951"
+    // apiKey: "AIzaSyB14umVfdO698P_sUXR4J5Xkp755M0LqCA",
+    // authDomain: "project1-firebase-auth.firebaseapp.com",
+    // databaseURL: "https://project1-firebase-auth.firebaseio.com",
+    // projectId: "project1-firebase-auth",
+    // storageBucket: "project1-firebase-auth.appspot.com",
+    // messagingSenderId: "558796916951"
+
+    // Train Scheduler
+    apiKey: "AIzaSyCblT2nfpwzw2HumOPzdQOh3tLuOvozyiE",
+    authDomain: "bootcamp-learning.firebaseapp.com",
+    databaseURL: "https://bootcamp-learning.firebaseio.com",
+    projectId: "bootcamp-learning",
+    storageBucket: "bootcamp-learning.appspot.com",
+    messagingSenderId: "1031333562864"
 };
 
 firebase.initializeApp(config);
@@ -50,9 +58,8 @@ $(document).on("click", ".signInBtn", function () {
         // The signed-in user info.
         var user = result.user;
         console.log(user);
-        // $(".trainSchedule").show();
-        // $(".addTrain").show();
-        window.location = '/test-project-1.2/map.html';
+        // window.location = '/test-project-1.2/map.html';
+        window.location = 'https://anishbnair.github.io/test-project-1.2/map.html';
 
         // ...
     }).catch(function (error) {
@@ -74,9 +81,8 @@ $(document).on("click", ".signInBtn", function () {
 $(document).on('click', '.signInBtn', function () {
     firebase.auth().signOut().then(function () {
         // Sign-out successful.
-        // $(".trainSchedule").hide();
-        // $(".addTrain").hide();
-        window.location = '/index.html';
+        // window.location = '/index.html';
+        window.location = 'https://anishbnair.github.io/test-project-1.2/';
     }).catch(function (error) {
         // An error happened.
     });
